@@ -1,4 +1,3 @@
-# The playbook automates the setup of Docker and Zenoss on the target hosts 
 ---
 - name: Setup Docker and Zenoss on t5group hosts
   hosts: t5group
