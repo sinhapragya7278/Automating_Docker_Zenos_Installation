@@ -1,0 +1,57 @@
+# The playbook automates the setup of Docker and Zenoss on the target hosts 
+---
+- name: Setup Docker and Zenoss on t5group hosts
+  hosts: t5group
+  become: yes
+  tasks:
+    - name: Install Docker prerequisite packages
+      yum:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: latest
+
+    - name: Configure Docker repository
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: '0644'
+
+    - name: Install Docker
+      yum:
+        name: docker-ce
+        state: present
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add EPEL repository
+      yum_repository:
+        name: epel
+        description: EPEL YUM repo
+        baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+        gpgcheck: yes
+        enabled: yes
+
+    - name: Add Zenoss repository
+      yum_repository:
+        name: zenoss
+        description: Zenoss YUM repo
+        baseurl: http://get.zenoss.io/yum/zenoss-repo-1-1.x86_64.rpm
+        gpgcheck: no
+        enabled: yes
+
+    - name: Install Zenoss
+      yum:
+        name: zenoss-core-service
+        state: present
+
+    - name: Enable Zenoss service
+      service:
+        name: serviced
+        state: started
+        enabled: yes
